@@ -7,16 +7,11 @@
 #    https://shiny.posit.co/
 #
 
-install.packages("sparklyr")
-install.packages("pysparklyr")
-pysparklyr::install_pyspark()
-
-library(shiny)
-library(sparklyr)
-library(dplyr)
-library(glue)
-library(DBI)
-library(pheatmap)
+# pysparklyr::install_pyspark()
+# Install and load required packages
+required_pkgs <- c("shiny", "sparklyr", "pysparklyr", "dplyr", "glue", "DBI", "pheatmap")
+install.packages(setdiff(required_pkgs, rownames(installed.packages())))
+invisible(lapply(required_pkgs, library, character.only = TRUE))
 
 # Connect to SeqsLab
 sc <- spark_connect(
