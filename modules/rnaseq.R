@@ -21,11 +21,12 @@ library(pheatmap)
 # Connect to SeqsLab
 sc <- spark_connect(
   master = "sc://localhost",
-  method = "spark_connect"
+  method = "spark_connect",
+  version = "3.5"
 )
 
 # list available databases (runs)
-dbs <- src_databases(sc)
+dbs <- src_databases(sc, col="namespace")
 
 # Define UI for RNA-seq application
 rnaseqUI <- function(id) {
