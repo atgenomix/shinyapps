@@ -44,7 +44,7 @@ rnaseqServer <- function(id) {
     
     read_table <- function(pattern, db, tbls) {
       n <- tbls[grepl(pattern, tbls)]
-      spark_read_table(sc, glue("{db}.{n}"))
+      sdf_sql(sc, glue("SELECT * FROM {db}.{n}"))
     }
     
     tbls <- reactive({
