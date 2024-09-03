@@ -26,10 +26,15 @@ dbs <- src_databases(sc, col="namespace")
 # Define UI for RNA-seq application
 rnaseqUI <- function(id) {
   ns <- NS(id)
-  
-  selectInput(ns("db"), label = "Run name:", choices = dbs)
-  
   tagList(
+    selectInput(ns("db"), label = "Run name:", choices = dbs),
+    sliderInput(
+      ns("logFC_slider"),
+      "Exclude Range of Fold Change",
+      min = -10, max = 10,step = 0.1,
+      value = c(-0.6, 0.6)
+    ),
+    input_task_button(ns("generate_plot"), "Generate Plot"),
     plotOutput(ns("heatmap"))
   )
 }
@@ -39,10 +44,10 @@ rnaseqServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     
     read_table <- function(pattern, db, tbls) {
-      n <- tbls[grepl(pattern, tbls)]
+      n <- tbls$tableName[grepl(pattern, tbls$tableName)]
       sdf_sql(sc, glue("SELECT * FROM {db}.{n}"))
     }
-    
+
     tbls <- reactive({
       tbl_change_db(sc, input$db)
       dbGetQuery(sc, glue("SHOW TABLES IN {input$db}"))
@@ -65,11 +70,38 @@ rnaseqServer <- function(id) {
     })
     
     tbl_normalcounts <- reactive({
-      read_table("^normalcounts_delta", input$db, tbls())
+      read_table("^normcounts_delta", input$db, tbls())
+    })
+    
+    logFC_min <- reactive({
+      as.numeric(input$logFC_slider[1])
+    })
+    
+    logFC_max <- reactive({
+      as.numeric(input$logFC_slider[2])
+    })
+    
+    query_genes <- reactive({
+      logFC_min <- logFC_min()
+      logFC_max <- logFC_max()
+      tbl_exacttest() %>%
+        filter(logFC >= logFC_max | logFC <= logFC_min) %>%
+        filter(PValue <= 0.05) %>%
+        filter(FDR <= 0.05) %>%
+        select(genes) %>%
+        collect() %>%
+        .$genes
     })
     
     output$heatmap <- renderPlot({
-      pheatmap(tbl_normalcounts())
-    }, res = 96)
+      query_genes <- query_genes()
+      tbl_normalcounts() %>%
+        filter(genes %in% query_genes) %>%
+        #mutate_if(is.numeric, ~ log2(. + 1)) %>%
+        collect() %>%
+        {
+          pheatmap(.[, -1], labels_row = .$genes)
+        }
+    }) %>% bindEvent(input$generate_plot)
   })
 }
