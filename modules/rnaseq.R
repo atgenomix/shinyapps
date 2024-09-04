@@ -9,7 +9,7 @@
 
 # pysparklyr::install_pyspark()
 # Install and load required packages
-required_pkgs <- c("shiny", "sparklyr", "pysparklyr", "dplyr", "glue", "DBI", "pheatmap")
+required_pkgs <- c("shiny", "sparklyr", "pysparklyr", "dplyr", "glue", "DBI", "pheatmap","bslib","ggplot2")
 install.packages(setdiff(required_pkgs, rownames(installed.packages())))
 invisible(lapply(required_pkgs, library, character.only = TRUE))
 
@@ -35,6 +35,7 @@ rnaseqUI <- function(id) {
       value = c(-0.6, 0.6)
     ),
     input_task_button(ns("generate_plot"), "Generate Plot"),
+    plotOutput(ns("volcano")),
     plotOutput(ns("heatmap"))
   )
 }
@@ -102,6 +103,39 @@ rnaseqServer <- function(id) {
         {
           pheatmap(.[, -1], labels_row = .$genes)
         }
+    }) %>% bindEvent(input$generate_plot)
+    
+    output$volcano <- renderPlot({
+      logFC_min <- logFC_min()
+      logFC_max <- logFC_max()
+      tbl_exacttest() %>%
+        select(c("logFC", "PValue")) %>%
+        mutate(negLogPval = -log10(PValue)) %>%
+        mutate(diffexpressed = case_when(
+          logFC >= logFC_max & PValue <= 0.05 ~ "Upregulated",
+          logFC <= logFC_min & PValue <= 0.05 ~ "Downregulated",
+          TRUE ~ "Not significant"
+        )) %>%
+        collect() %>%
+        ggplot(., aes(x = logFC, y = negLogPval, col = diffexpressed)) +
+        geom_point() +
+        theme_minimal() +
+        labs(
+          title = "Volcano Plot RNA Seq",
+          x = "Log2 Fold Change",
+          y = "-Log10 P-value"
+        ) +
+        geom_vline(xintercept = c(logFC_min, logFC_max), col = "gray", linetype = "dashed") +
+        geom_hline(yintercept = -log10(0.05), col = "gray", linetype = "dashed") +
+        geom_point(size = 1) +
+        scale_color_manual(
+          values = c("#00AFBB", "grey", "#bb0c00"),
+          labels = c("Downregulated", "Not significant", "Upregulated")
+        ) +
+        labs(
+          color = "Expressed", # legend_title,
+          x = expression("log"[2] * "FC"), y = expression("-log"[10] * "p-value")
+        )
     }) %>% bindEvent(input$generate_plot)
   })
 }
