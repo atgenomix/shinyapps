@@ -21,7 +21,14 @@ sc <- spark_connect(
 )
 
 # list available databases (runs)
-dbs <- src_databases(sc, col="namespace")
+# src_databases <- function(sc, col="databaseName") {
+#   sql <- hive_context(sc)
+#   dbs <- invoke(sql, "sql", "SHOW DATABASES")
+#   databaseNames <- sdf_read_column(dbs, col)
+#   sort(databaseNames)
+# }
+# dbs <- src_databases(sc, col="namespace")
+dbs <- dbGetQuery(sc,"SHOW DATABASES")
 
 # Define UI for RNA-seq application
 rnaseqUI <- function(id) {
