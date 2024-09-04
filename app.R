@@ -15,6 +15,7 @@ ui <- fluidPage(
 
   tabsetPanel(
     tabPanel("RNAseq",rnaseqUI("RNAseq")),
+    tabPanel("DNAseq",rnaseqUI("DNAseq")),
   )
 )
 
@@ -22,6 +23,7 @@ ui <- fluidPage(
 server <- function(input, output, session) {
 
   rnaseqServer("RNAseq")
+  rnaseqServer("DNAseq")
 }
 
 # Run the application 
