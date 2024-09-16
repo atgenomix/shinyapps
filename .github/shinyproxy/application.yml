@@ -4,7 +4,7 @@ proxy:
   landing-page: /
   heartbeat-rate: 10000
   heartbeat-timeout: 60000
-  port: 8888
+  port: 9500
   authentication: simple
   admin-groups: scientists
   docker:
@@ -20,9 +20,10 @@ proxy:
     - id: rnaseq
       display-name: RNA Seq
       description: Application to demonstrate RNA Seq results
-      container-image: atgenomix.azurecr.io/atgenomix/runtime/shiny-app:2024-09-15-10-27
+      container-image: atgenomix.azurecr.io/atgenomix/runtime/shiny-app:2024-09-16-14-51
+      container-cmd: ["R", "-q", "-e", "rnaseq::runShiny()"]
       container-network: shiny-proxy-net
-      container-volumes: [ "/home/spark-current/conf/spark-defaults.conf:/home/spark-current/conf/spark-defaults.conf", "/home/spark-current/conf/core-site.xml:/home/spark-current/conf/core-site.xml", "/mnt:/mnt" ]
+      container-volumes: [ "/home/spark-current:/home/spark-current", "/mnt:/mnt" ]
 logging:
   file:
     name: shinyproxy.log
