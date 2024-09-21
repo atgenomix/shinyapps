@@ -15,7 +15,7 @@ invisible(lapply(required_pkgs, library, character.only = TRUE))
 uiFunction <- function() {
     library(sparklyr)
     library(DBI)
-    sc <- spark_connect(master="spark://172.18.0.1:7077")
+    sc <- spark_connect(master="sc://172.18.0.1:15002", method="spark_connect", version="3.5.1")
     dbs <- dbGetQuery(sc, "SHOW DATABASES")
     fluidPage(
         tabsetPanel(
@@ -28,7 +28,7 @@ uiFunction <- function() {
 # Define server logic required to draw a histogram
 serverFunction <- function() {
     library(sparklyr)
-    sc <- spark_connect(master = "spark://172.18.0.1:7077")
+    sc <- spark_connect(master="sc://172.18.0.1:15002", method="spark_connect", version="3.5.1")
     function(input, output, session) {
         rnaseqServer("RNAseq", sc)
         rnaseqServer("DNAseq", sc)
@@ -45,7 +45,7 @@ rnaseqUI <- function(id, dbs) {
         sliderInput(
             ns("logFC_slider"),
             "Exclude Range of Fold Change",
-            min = -10, max = 10,step = 0.1,
+            min = -10, max = 10, step = 0.1,
             value = c(-0.6, 0.6)
         ),
         input_task_button(ns("generate_plot"), "Generate Plot"),
@@ -57,7 +57,11 @@ rnaseqUI <- function(id, dbs) {
 # Define server logic required to draw RNA-seq charts
 rnaseqServer <- function(id, sc) {
   moduleServer(id, function(input, output, session) {
-    
+    library(DBI)
+    library(ggplot2)
+    library(glue)
+    library(pheatmap)
+
     read_table <- function(pattern, db, tbls) {
       n <- tbls$tableName[grepl(pattern, tbls$tableName)]
       sdf_sql(sc, glue("SELECT * FROM {db}.{n}"))

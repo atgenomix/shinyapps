@@ -16,6 +16,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     openjdk-8-jdk \
     wget \
     curl \
+    git \
+    python3-dev \
+    python3-pip \
+    virtualenv \
     && rm -rf /var/lib/apt/lists/*
 
 # system library dependency for the euler app
@@ -24,14 +28,17 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && rm -rf /var/lib/apt/lists/*
 
 # install R packages for shiny functionality
-RUN R -q -e "options(warn=2); install.packages(c('shiny', 'sparklyr', 'pysparklyr', 'dplyr', 'glue', 'DBI', 'pheatmap', 'bslib', 'ggplot2'))"
+RUN R -q -e "options(warn=2); install.packages(c('shiny', 'sparklyr', 'pysparklyr', 'dplyr', 'glue', 'DBI', 'pheatmap', 'bslib', 'ggplot2', 'Rmpfr'))"
 
-# install
-RUN R -q -e "options(warn=2); install.packages(c('Rmpfr'))"
+# prepare virtualenv
+RUN /usr/bin/python3.10 -m virtualenv -p '/usr/bin/python3.10' /root/.virtualenvs/r-sparklyr-pyspark-3.5 \
+    && /root/.virtualenvs/r-sparklyr-pyspark-3.5/bin/python -m pip install --upgrade --no-user 'pyspark==3.5.1' 'pandas!=2.1.0' PyArrow grpcio google-api-python-client grpcio_status 'rpy2==3.5.12'
 
 # install R code R CMD build rnaseq
-COPY rnaseq_0.0.1.tar.gz /build/rnaseq_0.0.1.tar.gz
-RUN R CMD INSTALL /build/rnaseq_0.0.1.tar.gz
+ADD /rnaseq /build/rnaseq
+RUN cd /build \
+    && R CMD build rnaseq \
+    && R CMD INSTALL /build/rnaseq_0.0.1.tar.gz
 
 EXPOSE 3838
 

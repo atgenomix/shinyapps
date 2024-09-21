@@ -20,7 +20,7 @@ proxy:
     - id: rnaseq
       display-name: RNA Seq
       description: Application to demonstrate RNA Seq results
-      container-image: atgenomix.azurecr.io/atgenomix/runtime/shiny-app:2024-09-16-14-51
+      container-image: atgenomix.azurecr.io/atgenomix/runtime/shiny-app:2024-09-21-09-00
       container-cmd: ["R", "-q", "-e", "rnaseq::runShiny()"]
       container-network: shiny-proxy-net
       container-volumes: [ "/home/spark-current:/home/spark-current", "/mnt:/mnt" ]
