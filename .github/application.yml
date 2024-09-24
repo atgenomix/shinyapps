@@ -1,0 +1,25 @@
+proxy:
+  title: Open Analytics Shiny Proxy
+  logo-url: https://www.openanalytics.eu/shinyproxy/logo.png
+  landing-page: /
+  heartbeat-rate: 10000
+  heartbeat-timeout: 60000
+  port: 9500
+  authentication: simple
+  docker:
+      internal-networking: true
+  users:
+    - name: jack
+      password: password
+      groups: scientists
+  specs:
+    - id: rnaseq
+      display-name: RNA Seq
+      description: Application to demonstrate RNA Seq results
+      container-image: atgenomix.azurecr.io/atgenomix/runtime/atgxshinyapp:1.0.0_22.04
+      container-cmd: ["R", "-q", "-e", "rnaseq::runShiny()"]
+      container-network: shiny-proxy-net
+      container-volumes: [ "/home/spark-current:/home/spark-current", "/mnt:/mnt" ]
+logging:
+  file:
+    name: shinyproxy.log
