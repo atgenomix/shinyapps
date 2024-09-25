@@ -15,7 +15,7 @@ invisible(lapply(required_pkgs, library, character.only = TRUE))
 uiFunction <- function() {
     library(sparklyr)
     library(DBI)
-    sc <- spark_connect(master="sc://172.18.0.1:15002", method="spark_connect", version="3.5.1")
+    sc <- spark_connect(master="sc://172.18.0.1:15002", method="spark_connect", version="3.5.2")
     dbs <- dbGetQuery(sc, "SHOW DATABASES")
     fluidPage(
         tabsetPanel(
@@ -28,7 +28,7 @@ uiFunction <- function() {
 # Define server logic required to draw a histogram
 serverFunction <- function() {
     library(sparklyr)
-    sc <- spark_connect(master="sc://172.18.0.1:15002", method="spark_connect", version="3.5.1")
+    sc <- spark_connect(master="sc://172.18.0.1:15002", method="spark_connect", version="3.5.2")
     function(input, output, session) {
         rnaseqServer("RNAseq", sc)
         rnaseqServer("DNAseq", sc)
