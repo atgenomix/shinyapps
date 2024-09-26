@@ -23,20 +23,15 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     virtualenv \
     && rm -rf /var/lib/apt/lists/*
 
-# install R packages for shiny functionality
-RUN R -q -e "options(warn=2); install.packages(c('shiny', 'sparklyr', 'pysparklyr', 'dplyr', 'glue', 'DBI', 'pheatmap', 'bslib', 'ggplot2', 'Rmpfr'))"
+# install Seqslab shinyapps R packages
+RUN R -q -e "options(warn=2); install.packages('remotes')"
+RUN R -q -e "options(warn=2); remotes::install_github('https://github.com/atgenomix/shinyapps/')"
 
 # prepare virtualenv
 RUN /usr/bin/python3.10 -m virtualenv -p '/usr/bin/python3.10' /root/.virtualenvs/r-sparklyr-pyspark-3.5 \
     && rm -rf /root/.virtualenvs/r-sparklyr-pyspark-3.5/lib \
     && mv /root/.virtualenvs/r-sparklyr-pyspark-3.5/local/* /root/.virtualenvs/r-sparklyr-pyspark-3.5/ \
     && /root/.virtualenvs/r-sparklyr-pyspark-3.5/bin/python -m pip install --upgrade --no-user 'pyspark==3.5.2' 'pandas!=2.1.0' PyArrow grpcio google-api-python-client grpcio_status 'rpy2==3.5.1'
-
-# install R code R CMD build rnaseq
-ADD rnaseq /build/rnaseq
-RUN cd /build \
-    && R CMD build /build/rnaseq \
-    && R CMD INSTALL /build/rnaseq_0.0.1.tar.gz
 
 # copy shiny proxy application yml file to /home
 COPY atgenomix/shinyapp/application.yml /home/application.yml
