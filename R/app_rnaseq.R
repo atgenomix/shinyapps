@@ -4,43 +4,37 @@
 #' @importFrom shiny shinyApp
 #' @import sparklyr
 #' @export
-app_rnaseq <- function(...) {
+app_rnaseq <- function(master = "sc://172.18.0.1:15002", ...) {
+  # Connect to SeqsLab
+  sc <- spark_connect(
+    master = master,
+    method = "spark_connect",
+    version = "3.5"
+  )
   shinyApp(
-    ui = rnaseq_ui(),
-    server = rnaseq_server(),
+    ui = rnaseq_ui(sc),
+    server = rnaseq_server(sc),
     options = list(...)
   )
 }
 
 # Define UI for application that draws a histogram
-rnaseq_ui <- function() {
-  # Connect to SeqsLab
-  sc <- spark_connect(
-    master = "sc://172.18.0.1:15002",
-    method = "spark_connect",
-    version = "3.5"
-  )
+rnaseq_ui <- function(sc) {
   # list available databases (runs)
   # dbs <- src_databases(sc, col="namespace")
   dbs <- dbGetQuery(sc, "SHOW DATABASES")
   fluidPage(
     tabsetPanel(
-      tabPanel("RNAseq", rnaseqUI("RNAseq", dbs)),
-      tabPanel("DNAseq", rnaseqUI("DNAseq", dbs)),
+      tabPanel("RNAseq", rnaseqUI("RNAseq", sc, dbs)),
+      tabPanel("DNAseq", rnaseqUI("DNAseq", sc, dbs)),
     )
   )
 }
 
 # Define server logic required to draw a histogram
-rnaseq_server <- function() {
-  # Connect to SeqsLab
-  sc <- spark_connect(
-    master = "sc://172.18.0.1:15002",
-    method = "spark_connect",
-    version = "3.5"
-  )
+rnaseq_server <- function(sc) {
   function(input, output, session) {
-    rnaseqServer("RNAseq")
-    rnaseqServer("DNAseq")
+    rnaseqServer("RNAseq", sc)
+    rnaseqServer("DNAseq", sc)
   }
 }

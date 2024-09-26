@@ -8,7 +8,7 @@
 #
 
 # Define UI for RNA-seq application
-rnaseqUI <- function(id, dbs) {
+rnaseqUI <- function(id, sc, dbs) {
   ns <- NS(id)
   tagList(
     selectInput(ns("db"), label = "Run name:", choices = dbs),
@@ -25,7 +25,7 @@ rnaseqUI <- function(id, dbs) {
 }
 
 # Define server logic required to draw RNA-seq charts
-rnaseqServer <- function(id) {
+rnaseqServer <- function(id, sc) {
   moduleServer(id, function(input, output, session) {
     read_table <- function(pattern, db, tbls) {
       n <- tbls$tableName[grepl(pattern, tbls$tableName)]
