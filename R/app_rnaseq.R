@@ -4,7 +4,7 @@
 #' @importFrom shiny shinyApp
 #' @import sparklyr
 #' @export
-app_rnaseq <- function(master = "sc://172.18.0.1:15002", ...) {
+launch_app_rnaseq <- function(master = "sc://172.18.0.1:15002", ...) {
   # Connect to SeqsLab
   sc <- spark_connect(
     master = master,
