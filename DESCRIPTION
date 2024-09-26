@@ -9,7 +9,15 @@ Description: Application to demonstrate HeatMap of RNA Seq.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: 
-	Rmpfr, shiny
+    bslib,
+    DBI,
+    dplyr,
+    ggplot2,
+    glue,
+    pheatmap,
+    pysparklyr,
+    shiny,
+    sparklyr
 Suggests: 
 	testthat
 RoxygenNote: 7.3.1

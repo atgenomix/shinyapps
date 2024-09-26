@@ -7,38 +7,15 @@
 #    https://shiny.posit.co/
 #
 
-# pysparklyr::install_pyspark()
-# Install and load required packages
-required_pkgs <- c("shiny", "sparklyr", "pysparklyr", "dplyr", "glue", "DBI", "pheatmap","bslib","ggplot2")
-install.packages(setdiff(required_pkgs, rownames(installed.packages())))
-invisible(lapply(required_pkgs, library, character.only = TRUE))
-
-# Connect to SeqsLab
-sc <- spark_connect(
-  master = "sc://localhost",
-  method = "spark_connect",
-  version = "3.5"
-)
-
-# list available databases (runs)
-# src_databases <- function(sc, col="databaseName") {
-#   sql <- hive_context(sc)
-#   dbs <- invoke(sql, "sql", "SHOW DATABASES")
-#   databaseNames <- sdf_read_column(dbs, col)
-#   sort(databaseNames)
-# }
-# dbs <- src_databases(sc, col="namespace")
-dbs <- dbGetQuery(sc,"SHOW DATABASES")
-
 # Define UI for RNA-seq application
-rnaseqUI <- function(id) {
+rnaseqUI <- function(id, dbs) {
   ns <- NS(id)
   tagList(
     selectInput(ns("db"), label = "Run name:", choices = dbs),
     sliderInput(
       ns("logFC_slider"),
       "Exclude Range of Fold Change",
-      min = -10, max = 10,step = 0.1,
+      min = -10, max = 10, step = 0.1,
       value = c(-0.6, 0.6)
     ),
     input_task_button(ns("generate_plot"), "Generate Plot"),
@@ -50,7 +27,6 @@ rnaseqUI <- function(id) {
 # Define server logic required to draw RNA-seq charts
 rnaseqServer <- function(id) {
   moduleServer(id, function(input, output, session) {
-    
     read_table <- function(pattern, db, tbls) {
       n <- tbls$tableName[grepl(pattern, tbls$tableName)]
       sdf_sql(sc, glue("SELECT * FROM {db}.{n}"))
@@ -60,35 +36,35 @@ rnaseqServer <- function(id) {
       tbl_change_db(sc, input$db)
       dbGetQuery(sc, glue("SHOW TABLES IN {input$db}"))
     })
-    
+
     tbl_go <- reactive({
       read_table("^go_delta", input$db, tbls())
     })
-    
+
     tbl_gosea <- reactive({
       read_table("^gosea_delta", input$db, tbls())
     })
-    
+
     tbl_gopvalue <- reactive({
       read_table("^gopvalue_delta", input$db, tbls())
     })
-    
+
     tbl_exacttest <- reactive({
       read_table("^exacttest_delta", input$db, tbls())
     })
-    
+
     tbl_normalcounts <- reactive({
       read_table("^normcounts_delta", input$db, tbls())
     })
-    
+
     logFC_min <- reactive({
       as.numeric(input$logFC_slider[1])
     })
-    
+
     logFC_max <- reactive({
       as.numeric(input$logFC_slider[2])
     })
-    
+
     query_genes <- reactive({
       logFC_min <- logFC_min()
       logFC_max <- logFC_max()
@@ -100,18 +76,18 @@ rnaseqServer <- function(id) {
         collect() %>%
         .$genes
     })
-    
+
     output$heatmap <- renderPlot({
       query_genes <- query_genes()
       tbl_normalcounts() %>%
         filter(genes %in% query_genes) %>%
-        #mutate_if(is.numeric, ~ log2(. + 1)) %>%
+        # mutate_if(is.numeric, ~ log2(. + 1)) %>%
         collect() %>%
         {
           pheatmap(.[, -1], labels_row = .$genes)
         }
     }) %>% bindEvent(input$generate_plot)
-    
+
     output$volcano <- renderPlot({
       logFC_min <- logFC_min()
       logFC_max <- logFC_max()
