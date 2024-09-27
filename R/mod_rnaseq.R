@@ -8,6 +8,7 @@
 #
 
 # Define UI for RNA-seq application
+#' @importFrom bslib input_task_button
 mod_rnaseq_ui <- function(id, sc, dbs) {
   ns <- NS(id)
   tagList(

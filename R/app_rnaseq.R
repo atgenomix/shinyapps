@@ -1,8 +1,6 @@
 #' Run the shiny application
 #' @param ... further arguments that can be passed to \code{\link[shiny]{shinyApp}} options
 #' @return shinyApp object, see also \code{\link[shiny]{shinyApp}}
-#' @importFrom shiny shinyApp
-#' @import sparklyr
 #' @export
 launch_app_rnaseq <- function(master = "sc://172.18.0.1:15002", ...) {
   # Connect to SeqsLab
@@ -19,6 +17,7 @@ launch_app_rnaseq <- function(master = "sc://172.18.0.1:15002", ...) {
 }
 
 # Define UI for application that draws a histogram
+#' @importFrom DBI dbGetQuery
 rnaseq_ui <- function(sc) {
   # list available databases (runs)
   # dbs <- src_databases(sc, col="namespace")
