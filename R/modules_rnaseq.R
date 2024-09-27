@@ -27,10 +27,6 @@ rnaseqUI <- function(id, sc, dbs) {
 # Define server logic required to draw RNA-seq charts
 rnaseqServer <- function(id, sc) {
   moduleServer(id, function(input, output, session) {
-    read_table <- function(pattern, db, tbls) {
-      n <- tbls$tableName[grepl(pattern, tbls$tableName)]
-      sdf_sql(sc, glue("SELECT * FROM {db}.{n}"))
-    }
 
     tbls <- reactive({
       tbl_change_db(sc, input$db)
@@ -38,23 +34,23 @@ rnaseqServer <- function(id, sc) {
     })
 
     tbl_go <- reactive({
-      read_table("^go_delta", input$db, tbls())
+      read_table("^go_delta", sc, input$db, tbls())
     })
 
     tbl_gosea <- reactive({
-      read_table("^gosea_delta", input$db, tbls())
+      read_table("^gosea_delta", sc, input$db, tbls())
     })
 
     tbl_gopvalue <- reactive({
-      read_table("^gopvalue_delta", input$db, tbls())
+      read_table("^gopvalue_delta", sc, input$db, tbls())
     })
 
     tbl_exacttest <- reactive({
-      read_table("^exacttest_delta", input$db, tbls())
+      read_table("^exacttest_delta", sc, input$db, tbls())
     })
 
     tbl_normalcounts <- reactive({
-      read_table("^normcounts_delta", input$db, tbls())
+      read_table("^normcounts_delta", sc, input$db, tbls())
     })
 
     logFC_min <- reactive({
