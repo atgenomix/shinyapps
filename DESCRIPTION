@@ -1,0 +1,23 @@
+Package: rnaseq
+Type: Package
+Title: Application to demonstrate HeatMap of RNA Seq
+Version: 0.0.1
+Date: 2024-04-02
+Author: Who wrote it
+Maintainer: Open Analytics <info@openanalytics.eu>
+Description: Application to demonstrate HeatMap of RNA Seq.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports: 
+    bslib,
+    DBI,
+    dplyr,
+    ggplot2,
+    glue,
+    pheatmap,
+    pysparklyr,
+    shiny,
+    sparklyr
+Suggests: 
+	testthat
+RoxygenNote: 7.3.2
