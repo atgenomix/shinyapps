@@ -8,7 +8,7 @@
 #
 
 # Define UI for RNA-seq application
-rnaseqUI <- function(id, sc, dbs) {
+mod_rnaseq_ui <- function(id, sc, dbs) {
   ns <- NS(id)
   tagList(
     selectInput(ns("db"), label = "Run name:", choices = dbs),
@@ -25,7 +25,9 @@ rnaseqUI <- function(id, sc, dbs) {
 }
 
 # Define server logic required to draw RNA-seq charts
-rnaseqServer <- function(id, sc) {
+#' @importFrom ggplot2 ggplot
+#' @importFrom pheatmap pheatmap
+mod_rnaseq_server <- function(id, sc) {
   moduleServer(id, function(input, output, session) {
 
     tbls <- reactive({

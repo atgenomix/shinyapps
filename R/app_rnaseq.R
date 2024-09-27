@@ -25,8 +25,8 @@ rnaseq_ui <- function(sc) {
   dbs <- dbGetQuery(sc, "SHOW DATABASES")
   fluidPage(
     tabsetPanel(
-      tabPanel("RNAseq", rnaseqUI("RNAseq", sc, dbs)),
-      tabPanel("DNAseq", rnaseqUI("DNAseq", sc, dbs)),
+      tabPanel("RNAseq", mod_rnaseq_ui("RNAseq", sc, dbs)),
+      tabPanel("DNAseq", mod_rnaseq_ui("DNAseq", sc, dbs)),
     )
   )
 }
@@ -34,7 +34,7 @@ rnaseq_ui <- function(sc) {
 # Define server logic required to draw a histogram
 rnaseq_server <- function(sc) {
   function(input, output, session) {
-    rnaseqServer("RNAseq", sc)
-    rnaseqServer("DNAseq", sc)
+    mod_rnaseq_server("RNAseq", sc)
+    mod_rnaseq_server("DNAseq", sc)
   }
 }
