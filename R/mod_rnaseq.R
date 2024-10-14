@@ -32,28 +32,27 @@ mod_rnaseq_server <- function(id, sc) {
   moduleServer(id, function(input, output, session) {
 
     tbls <- reactive({
-      tbl_change_db(sc, input$db)
-      dbGetQuery(sc, glue("SHOW TABLES IN {input$db}"))
+      get_db_tables(sc, input$db)
     })
 
     tbl_go <- reactive({
-      read_table("^go_delta", sc, input$db, tbls())
+      read_table("^go_delta",tbls())
     })
 
     tbl_gosea <- reactive({
-      read_table("^gosea_delta", sc, input$db, tbls())
+      read_table("^gosea_delta",tbls())
     })
 
     tbl_gopvalue <- reactive({
-      read_table("^gopvalue_delta", sc, input$db, tbls())
+      read_table("^gopvalue_delta",tbls())
     })
 
     tbl_exacttest <- reactive({
-      read_table("^exacttest_delta", sc, input$db, tbls())
+      read_table("^exacttest_delta",tbls())
     })
 
     tbl_normalcounts <- reactive({
-      read_table("^normcounts_delta", sc, input$db, tbls())
+      read_table("^normcounts_delta",tbls())
     })
 
     logFC_min <- reactive({
